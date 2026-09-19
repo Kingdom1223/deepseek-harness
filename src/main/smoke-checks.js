@@ -124,7 +124,10 @@ export async function runElectronSmokeChecks(options) {
     assert.match(result.stdout.replaceAll('\\', '/'), /desktop-profile\/cordis\.yml|cordis\.yml/)
   })
 
-  await check('模型 pwsh 沙箱执行链', async () => {
+  const skipPwshSmoke = process.env.DSH_SKIP_PWSH_SMOKE === '1'
+  if (skipPwshSmoke) {
+    report('skip 模型 pwsh 沙箱执行链（CI 外层已验证 PowerShell 主机）')
+  } else await check('模型 pwsh 沙箱执行链', async () => {
     assert.ok(shell)
     assert.equal(typeof shellWorkspace, 'string')
     const probeFile = join(shellWorkspace, 'dsh-shell-smoke.txt')

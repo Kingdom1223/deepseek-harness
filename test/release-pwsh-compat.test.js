@@ -17,4 +17,6 @@ test('release checks keep the Windows ACL sandbox while selecting the inbox Powe
     2,
   )
   assert.equal(workflow.match(/\$env:DSH_PERMISSION_MODE\s*=\s*'danger-full-access'/gu)?.length, 2)
+  assert.equal(workflow.match(/\$env:DSH_SKIP_PWSH_SMOKE\s*=\s*'1'/gu)?.length, 2)
+  assert.equal(workflow.match(/DSH_CI_PWSH_OK/gu)?.length, 2)
 })

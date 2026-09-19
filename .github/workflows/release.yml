@@ -41,8 +41,13 @@ jobs:
           # keeps the product's default sandbox untouched; local smoke tests
           # cover the real workspace-write ACL path.
           $env:DSH_PERMISSION_MODE = 'danger-full-access'
+          $env:DSH_SKIP_PWSH_SMOKE = '1'
           $env:DSH_PWSH_PATH = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+          $windowsPowershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+          & $windowsPowershell -NoLogo -NoProfile -NonInteractive -Command "Write-Output DSH_CI_PWSH_OK"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Write-Host "DSH_PERMISSION_MODE=$env:DSH_PERMISSION_MODE"
+          Write-Host "DSH_SKIP_PWSH_SMOKE=$env:DSH_SKIP_PWSH_SMOKE"
           Write-Host "DSH_PWSH_PATH=$env:DSH_PWSH_PATH"
           npm run release:check
 
@@ -57,8 +62,13 @@ jobs:
         shell: pwsh
         run: |
           $env:DSH_PERMISSION_MODE = 'danger-full-access'
+          $env:DSH_SKIP_PWSH_SMOKE = '1'
           $env:DSH_PWSH_PATH = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+          $windowsPowershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+          & $windowsPowershell -NoLogo -NoProfile -NonInteractive -Command "Write-Output DSH_CI_PWSH_OK"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Write-Host "DSH_PERMISSION_MODE=$env:DSH_PERMISSION_MODE"
+          Write-Host "DSH_SKIP_PWSH_SMOKE=$env:DSH_SKIP_PWSH_SMOKE"
           Write-Host "DSH_PWSH_PATH=$env:DSH_PWSH_PATH"
           npm run test:packaged
 
