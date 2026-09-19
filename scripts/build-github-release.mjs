@@ -1,5 +1,5 @@
 /** 构建 GitHub Releases 更新产物，但不在本步骤上传。 */
-import { readFile } from 'node:fs/promises'
+import { readFile, rm } from 'node:fs/promises'
 
 import { Arch, build, Platform } from 'electron-builder'
 
@@ -12,6 +12,12 @@ const prerelease = String(manifest.version).includes('-')
 const channel = prerelease ? 'beta' : 'latest'
 
 await configureGitHubUpdates(repository)
+
+// electron-builder normally cleans this directory itself, but Windows can keep
+// a stale resource handle from a previous smoke/build process. Release output
+// is reproducible and disposable, so remove only dist/ before packaging and
+// retry transient antivirus/indexer locks.
+await rm(new URL('../dist/', import.meta.url), { recursive: true, force: true, maxRetries: 5, retryDelay: 500 })
 
 await build({
   targets: Platform.WINDOWS.createTarget(['nsis'], Arch.x64),
