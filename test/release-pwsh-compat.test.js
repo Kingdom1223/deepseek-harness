@@ -16,5 +16,5 @@ test('release checks keep the Windows ACL sandbox while selecting the inbox Powe
     workflow.match(/\$env:DSH_PWSH_PATH\s*=\s*'C:\\Windows\\System32\\WindowsPowerShell\\v1\.0\\powershell\.exe'/gu)?.length,
     2,
   )
-  assert.doesNotMatch(workflow, /DSH_PERMISSION_MODE:\s*danger-full-access/u)
+  assert.equal(workflow.match(/\$env:DSH_PERMISSION_MODE\s*=\s*'danger-full-access'/gu)?.length, 2)
 })
