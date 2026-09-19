@@ -24,6 +24,13 @@ await build({
   publish: 'never',
   config: {
     ...manifest.build,
+    // GitHub-hosted Windows runners can hold extraResources while Electron
+    // Builder writes the Windows ASAR integrity resource, causing EBUSY.
+    // Keep integrity enabled for local/user builds; disable it only for this
+    // disposable CI packaging path when explicitly requested by the runner.
+    ...(process.env.CI === 'true' || process.env.DSH_DISABLE_ASAR_INTEGRITY === '1'
+      ? { disableAsarIntegrity: true }
+      : {}),
     publish: [{
       provider: 'github',
       owner,
