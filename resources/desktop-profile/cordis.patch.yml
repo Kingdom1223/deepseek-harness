@@ -70,3 +70,13 @@
 # （宿主另设 DSH_TELEMETRY_DISABLED，两层一起保证。）
 - id: session-telemetry-otel
   disabled: true
+
+# ── PowerShell 主机兼容接口 ────────────────────────────────────────────────
+#
+# 默认留空时继续采用 DSH 的标准探测顺序（PowerShell 7 → PATH → Windows
+# PowerShell 5.1）。发布流水线可用 DSH_PWSH_PATH 固定系统自带的 5.1 主机，
+# 避开 GitHub Runner 预装 PowerShell 7 与 Windows ACL 限制令牌的 DLL 初始化
+# 冲突，同时仍执行完整的 workspace-write 沙箱检查。
+- id: pwsh-sandbox
+  config:
+    pwshPath: !!js process.env.DSH_PWSH_PATH

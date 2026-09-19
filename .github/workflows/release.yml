@@ -35,6 +35,8 @@ jobs:
 
       - name: Run release checks
         run: npm run release:check
+        env:
+          DSH_PWSH_PATH: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
 
       - name: Build signed update artifacts
         run: npm run build:release:github
@@ -45,6 +47,8 @@ jobs:
 
       - name: Test packaged application
         run: npm run test:packaged
+        env:
+          DSH_PWSH_PATH: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
 
       - name: Verify update metadata
         run: npm run update:artifacts:check
