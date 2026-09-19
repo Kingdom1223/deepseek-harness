@@ -34,9 +34,11 @@ jobs:
           }
 
       - name: Run release checks
-        run: npm run release:check
-        env:
-          DSH_PWSH_PATH: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+        shell: pwsh
+        run: |
+          $env:DSH_PWSH_PATH = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+          Write-Host "DSH_PWSH_PATH=$env:DSH_PWSH_PATH"
+          npm run release:check
 
       - name: Build signed update artifacts
         run: npm run build:release:github
@@ -46,9 +48,11 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
 
       - name: Test packaged application
-        run: npm run test:packaged
-        env:
-          DSH_PWSH_PATH: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+        shell: pwsh
+        run: |
+          $env:DSH_PWSH_PATH = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+          Write-Host "DSH_PWSH_PATH=$env:DSH_PWSH_PATH"
+          npm run test:packaged
 
       - name: Verify update metadata
         run: npm run update:artifacts:check
