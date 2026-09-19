@@ -1,0 +1,30 @@
+# Dependencies and local package cache
+node_modules/
+.npm-cache/
+
+# Build and test output
+dist/
+coverage/
+.nyc_output/
+*.log
+
+# Local runtime and user data
+.dsh/
+userdata/
+
+# Environment files and signing credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Editor and operating-system metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+

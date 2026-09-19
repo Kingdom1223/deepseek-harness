@@ -1,0 +1,4 @@
+# dsh profile root — 空入口列表。整棵树由 patch 层组合而成：
+# package.json 的 dsh.profile.bundles 各层，然后是 cordis.patch.yml，最后是 --patch 覆盖层。
+# 请编辑 cordis.patch.yml，不要编辑本文件。
+[]

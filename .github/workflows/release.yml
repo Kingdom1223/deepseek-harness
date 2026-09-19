@@ -1,0 +1,78 @@
+name: Release Windows desktop
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release-windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify tag matches package version
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          if ($env:GITHUB_REF_NAME -ne "v$version") {
+            throw "Tag $env:GITHUB_REF_NAME does not match package version v$version"
+          }
+
+      - name: Run release checks
+        run: npm run release:check
+
+      - name: Build signed update artifacts
+        run: npm run build:release:github
+        env:
+          DSH_GITHUB_REPOSITORY: ${{ github.repository }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+
+      - name: Test packaged application
+        run: npm run test:packaged
+
+      - name: Verify update metadata
+        run: npm run update:artifacts:check
+
+      - name: Verify Authenticode when signing is configured
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist\DeepSeek-Harness-Setup-*.exe | Select-Object -First 1
+          $signature = Get-AuthenticodeSignature -LiteralPath $installer.FullName
+          if ($env:CSC_LINK) {
+            if ($signature.Status -ne 'Valid') { throw "Installer signature is $($signature.Status)" }
+          } else {
+            Write-Warning 'CSC_LINK is not configured; this release will trigger Windows SmartScreen.'
+          }
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+
+      - name: Publish GitHub Release assets
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $metadata = Get-ChildItem dist\*.yml | Where-Object { $_.Name -in @('latest.yml', 'beta.yml') }
+          $installer = Get-ChildItem dist\DeepSeek-Harness-Setup-*.exe | Select-Object -First 1
+          $assets = @($installer.FullName, "$($installer.FullName).blockmap", $metadata.FullName)
+          $arguments = @('release', 'create', $env:GITHUB_REF_NAME, '--verify-tag', '--title', "DeepSeek Harness $version", '--generate-notes')
+          if ($version.Contains('-')) { $arguments += '--prerelease' }
+          $arguments += $assets
+          & gh @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        env:
+          GH_TOKEN: ${{ github.token }}

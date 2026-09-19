@@ -1,0 +1,14 @@
+{
+  "name": "dsh-profile-desktop",
+  "private": true,
+  "description": "DeepSeek Harness 桌面版 profile —— 复用 dsh-base + dsh-web-app 全量能力，覆写为桌面载具",
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app"
+      ],
+      "patchReload": "startup"
+    }
+  }
+}

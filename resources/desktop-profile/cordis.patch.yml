@@ -1,0 +1,72 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# DeepSeek Harness 桌面版 profile 覆盖层
+#
+# 本层在 dsh-base + dsh-web-app 两个 bundle 层之后应用，按 id 覆写目标行。
+# 桌面载具与浏览器载具的差异全部收敛在这里。
+#
+# patch 会整体替换目标行的 config，因此每一行都要完整重述它拥有的全部键。
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── 载具：把 HTTP 载体降级为纯进程内 API 通道 ────────────────────────────────
+#
+# 桌面版不把任何东西暴露到网络上：
+#   * host 固定 127.0.0.1（不是 0.0.0.0），外部网卡不可达
+#   * port 0 → 由操作系统分配随机空闲端口，避免与 `dsh web` 或其它实例抢占
+#   * 页面本身从 file:// 装载，这个服务端只承载 /api 与 /plugins 路由
+#   * 渲染进程通过 IPC 直连，不经过 TCP
+#
+# 这里刻意把配置写成**字面量**，而不是像 web bundle 那样写成
+# `!!js ctx.webStartup.port ?? 3080`。原因见下方 web-runtime 处的说明。
+- id: webserver
+  config:
+    host: 127.0.0.1
+    port: 0
+    compression: gzip
+    compressionLevel: 1
+    compressionThresholdBytes: 1024
+
+# ── Web 粘合层：关闭一切面向"浏览器"的行为 ─────────────────────────────────
+#
+# openBrowser   —— 桌面版自己就是宿主，绝不外调默认浏览器
+# printUrl      —— 不向 stdout 打印可点击 URL（桌面版没有终端）
+# surfaceContext—— 保留：它会注册 web-surface 提示段与 DSH_WEB_URL 变量
+#
+# 同样写成字面量。这一条是关键：web bundle 里 webserver 与 web-runtime 两行都
+# 声明了 `inject: [webStartup]`，而 webStartup 本该由 `dsh web` 那个 app 命令自己
+# 提供。桌面载具是宿主、没有命令行层，若依赖它就会让这两行停在 inject 等待上
+# —— 树看起来稳定，但 webServer 服务永远不出现。
+# 把两行的 config 都改成字面量后，依赖链彻底切断，profile 变得自洽。
+- id: web-runtime
+  config:
+    openBrowser: false
+    printUrl: false
+    surfaceContext: true
+    trustedHosts: []
+
+# ── 禁掉 web 的命令行层 ───────────────────────────────────────────────────
+#
+# `@deepseek-ai/dsh-web-app/startup` 把命令行标志（--port / --host / --open…）
+# 解析成 `webStartup` 服务。桌面版没有命令行层：取值是固定的回环 + 随机端口，
+# 而且宿主（Electron 主进程）自己提供了 `webStartup` 依赖占位。
+# 留着它只会出现两个提供者抢同一个服务名，所以在这里禁用。
+- id: web-startup
+  disabled: true
+
+# ── 工作区选择器由 Electron 宿主提供 ───────────────────────────────────────
+#
+# 官方 auto/native 后端会用 process.execPath 启动 Win32 COM worker。打包态下
+# process.execPath 是桌面 EXE 而不是 node.exe，因此 worker 会在返回结果前退出。
+# runtime.js 已通过同一个 directoryPicker 能力缝隙接入 Electron 系统对话框。
+- id: directory-picker
+  disabled: true
+- insert:
+    - id: desktop-directory-picker-ui
+      name: '@deepseek-ai/dsh-client-ui-directory-picker-native'
+
+# ── 关掉会话遥测 ──────────────────────────────────────────────────────────
+#
+# 桌面版不发送遥测。这里禁用比只设环境变量更硬：环境变量是"开关"，
+# 这一条是"这一行不挂载"——即使有人改了环境也不会开始收集。
+# （宿主另设 DSH_TELEMETRY_DISABLED，两层一起保证。）
+- id: session-telemetry-otel
+  disabled: true

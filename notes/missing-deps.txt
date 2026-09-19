@@ -1,0 +1,17 @@
+@deepseek-ai/dsh-agent-loop-testkit@^0.1.5-rc.1
+@deepseek-ai/dsh-attachment-local@^0.1.5-rc.1
+@deepseek-ai/dsh-credentials-local@^0.1.5-rc.1
+@deepseek-ai/dsh-experimental-agent-team@^0.1.5-rc.1
+@deepseek-ai/dsh-experimental-agent-team-profile@^0.1.5-rc.1
+@deepseek-ai/dsh-experimental-tool-agent-team@^0.1.5-rc.1
+@deepseek-ai/dsh-experimental-code-runtime-python@^0.1.5-rc.1
+@deepseek-ai/dsh-llm-deepseek@^0.1.5-rc.1
+@deepseek-ai/dsh-llm-mock-server@^0.1.5-rc.1
+@deepseek-ai/dsh-llm-replay@^0.1.5-rc.1
+@deepseek-ai/dsh-loader-smoke@^0.1.5-rc.1
+@deepseek-ai/dsh-plugin-package-inventory-deepseek@^0.1.5-rc.1
+@deepseek-ai/dsh-shell-env@^0.1.5-rc.1
+@deepseek-ai/dsh-settings-file@^0.1.5-rc.1
+@deepseek-ai/dsh-subagent-spawn-in-process@^0.1.5-rc.1
+@deepseek-ai/dsh-subagent@^0.1.5-rc.1
+@deepseek-ai/dsh-subagent-fork-in-process@^0.1.5-rc.1
