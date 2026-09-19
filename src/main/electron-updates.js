@@ -2,15 +2,23 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import { resourcesDir } from './paths.js'
+import { APP_ROOT, resourcesDir } from './paths.js'
 import { UpdateService } from './update-service.js'
 
 async function readUpdateConfig() {
-  try {
-    return JSON.parse(await readFile(join(resourcesDir(), 'update-config.json'), 'utf8'))
-  } catch (error) {
-    return { provider: 'github', error: String(error) }
+  const candidates = [
+    join(resourcesDir(), 'update-config.json'),
+    join(APP_ROOT, 'resources', 'update-config.json'),
+  ]
+  let lastError
+  for (const candidate of new Set(candidates)) {
+    try {
+      return JSON.parse(await readFile(candidate, 'utf8'))
+    } catch (error) {
+      lastError = error
+    }
   }
+  return { provider: 'github', error: String(lastError) }
 }
 
 /**
