@@ -1,7 +1,7 @@
 {
   "name": "deepseek-harness-desktop",
   "productName": "DeepSeek Harness",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "description": "DeepSeek Harness Desktop — runs the DSH runtime in-process, with its own window chrome and themeable UI",
   "author": "DeepSeek Harness Desktop",
@@ -190,12 +190,16 @@
       {
         "from": "resources/desktop-profile",
         "to": "desktop-profile",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "resources/icons",
         "to": "icons",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {

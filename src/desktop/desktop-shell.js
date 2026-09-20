@@ -33,7 +33,10 @@
 :root {
   --dshd-titlebar-height: 38px;
   --dshd-titlebar-blur: 22px;
-  --dshd-radius: 8px;
+  --dshd-radius: 16px;
+  --dshd-card-border: color-mix(in oklab, var(--dsw-alias-border-l2, #dfe2e8) 82%, transparent);
+  --dshd-card-bg: color-mix(in oklab, var(--dsw-alias-bg-layer-1, #fff) 96%, transparent);
+  --dshd-card-shadow: 0 1px 2px #0000000a, 0 8px 26px #0000000d;
   --dshd-motion: 180ms cubic-bezier(.22,.61,.36,1);
 }
 
@@ -61,10 +64,13 @@
   font-size: 12px; font-weight: 600; letter-spacing: .02em;
   color: var(--dsw-alias-label-secondary, #a3abbd);
 }
-.dshd-titlebar__dot {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--dsw-alias-brand-primary, #8b7cff);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--dsw-alias-brand-primary, #8b7cff) 22%, transparent);
+.dshd-titlebar__logo {
+  width: 19px; height: 19px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #4d6bfe;
+}
+.dshd-titlebar__logo svg {
+  display: block; width: 19px; height: auto;
 }
 .dshd-titlebar__spacer { flex: 1; }
 
@@ -108,8 +114,77 @@
 .dshd-update__primary { background: var(--dsw-alias-brand-primary, #6750e8); color: #fff; }
 .dshd-update__primary:hover { background: var(--dsw-alias-brand-primary-hover, #5941d7); color: #fff; }
 
-/* 主内容区让出标题栏高度。官方界面是满高的，这里整体下移。 */
+/* 主内容区让出标题栏高度，并给桌面端建立清晰但轻量的卡片层级。 */
 #root { padding-top: var(--dshd-titlebar-height); box-sizing: border-box; }
+
+.pI_x6G_frame { background: color-mix(in oklab, var(--dsw-alias-bg-base, #fff) 92%, #4d6bfe 8%); }
+.pI_x6G_sidebarCol { border-right: 0; background: transparent; }
+.hHd-Xa_root {
+  width: calc(100% - 10px) !important;
+  height: calc(100% - 20px);
+  margin: 10px 0 10px 10px;
+  border: 1px solid var(--dshd-card-border);
+  border-radius: var(--dshd-radius);
+  background: var(--dshd-card-bg);
+  box-shadow: var(--dshd-card-shadow);
+}
+.hHd-Xa_newSession {
+  min-height: 42px;
+  border-color: color-mix(in oklab, var(--dsw-alias-state-business-primary, #4d6bfe) 30%, var(--dshd-card-border));
+  background: color-mix(in oklab, var(--dsw-alias-state-business-primary, #4d6bfe) 8%, var(--dshd-card-bg));
+}
+.hHd-Xa_panelRow, .bhn1Oq_sessionOverflowButton { border-radius: 10px; }
+.bhn1Oq_groupSection {
+  margin-right: 4px;
+  padding: 6px;
+  border: 1px solid var(--dshd-card-border);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--dsw-alias-bg-layer-2, #fff) 72%, transparent);
+}
+.bhn1Oq_groupSection + .bhn1Oq_groupSection { margin-top: 8px; }
+.bhn1Oq_groupSection [role="treeitem"] { border-radius: 9px; }
+
+.pI_x6G_centerCol {
+  min-width: 0;
+  margin: 10px;
+  border: 1px solid var(--dshd-card-border);
+  border-radius: var(--dshd-radius);
+  background: var(--dshd-card-bg);
+  box-shadow: var(--dshd-card-shadow);
+}
+.pI_x6G_rightbarCol:not(:empty) {
+  margin: 10px 10px 10px 0;
+  border: 1px solid var(--dshd-card-border);
+  border-radius: var(--dshd-radius);
+  background: var(--dshd-card-bg);
+  box-shadow: var(--dshd-card-shadow);
+  overflow: hidden;
+}
+
+[data-dockkit-surface] { box-sizing: border-box; padding: 8px; }
+[data-dockkit-split] { gap: 8px; }
+[data-dockkit-pane] {
+  border: 1px solid var(--dshd-card-border);
+  border-radius: 14px;
+  background: var(--dshd-card-bg);
+  box-shadow: 0 1px 2px #0000000a;
+}
+[data-dockkit-pane] > [data-dockkit-strip] { padding: 8px 8px 0; }
+
+.uV2eYG_card {
+  border-radius: 18px;
+  box-shadow: 0 0 0 1px var(--dshd-card-border), 0 10px 30px #00000012;
+}
+.wSkVaW_header { border-bottom-color: color-mix(in oklab, var(--dsw-alias-border-l3, #dfe2e8) 68%, transparent); }
+
+@media (max-width: 980px) {
+  .pI_x6G_centerCol { margin-left: 6px; margin-right: 6px; }
+  .hHd-Xa_root { margin-left: 6px; width: calc(100% - 6px) !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dshd-btn { transition: none; }
+}
 `
     document.head.append(style)
   }
@@ -132,11 +207,12 @@
 
     const mark = document.createElement('div')
     mark.className = 'dshd-titlebar__mark'
-    const dot = document.createElement('span')
-    dot.className = 'dshd-titlebar__dot'
+    const logo = document.createElement('span')
+    logo.className = 'dshd-titlebar__logo'
+    logo.setAttribute('aria-hidden', 'true')
     const name = document.createElement('span')
     name.textContent = 'DeepSeek Harness'
-    mark.append(dot, name)
+    mark.append(logo, name)
 
     const spacer = document.createElement('div')
     spacer.className = 'dshd-titlebar__spacer'
@@ -168,6 +244,16 @@
     titlebar.append(mark, spacer, actions)
     document.body.append(titlebar)
     return titlebar
+  }
+
+  /** 复用官方侧栏渲染的 FishLogo，避免在桌面层维护第二份品牌路径。 */
+  function syncTitlebarLogo() {
+    const target = document.querySelector('.dshd-titlebar__logo')
+    if (!(target instanceof HTMLElement)) return false
+    if (target.childElementCount > 0) return true
+    const official = document.querySelector('.hHd-Xa_brandMark svg')
+    if (official instanceof SVGElement) target.append(official.cloneNode(true))
+    return target.childElementCount > 0
   }
 
   function formatBytes(value) {
@@ -297,12 +383,19 @@
   ensureChromeStyles()
   const titlebar = buildTitlebar()
   syncWindowBackground()
+  syncTitlebarLogo()
 
   // 官方 presenter 异步写 body 属性和 token；监听它而不覆盖它。
   new MutationObserver(syncWindowBackground).observe(document.body, {
     attributes: true,
     attributeFilter: ['style', 'data-ds-dark-theme'],
   })
+  if (!syncTitlebarLogo()) {
+    const logoObserver = new MutationObserver(() => {
+      if (syncTitlebarLogo()) logoObserver.disconnect()
+    })
+    logoObserver.observe(document.body, { childList: true, subtree: true })
+  }
 
   bridge.window.onState((state) => {
     titlebar.dataset.focused = String(state.focused)
